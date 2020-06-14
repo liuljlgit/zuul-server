@@ -1,0 +1,22 @@
+spring:
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        server-addr: cluster.nacos.com:8848
+        namespace: 50c24e71-65f9-4f49-b387-984387e376e7
+        group: LLJ_GROUP
+      config:
+        server-addr: cluster.nacos.com:8848
+        file-extension: yaml
+        refresh-enabled: true
+        namespace: 50c24e71-65f9-4f49-b387-984387e376e7
+        group: LLJ_GROUP
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
