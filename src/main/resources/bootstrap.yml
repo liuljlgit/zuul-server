@@ -14,9 +14,65 @@ spring:
         namespace: 50c24e71-65f9-4f49-b387-984387e376e7
         group: LLJ_GROUP
 
+#zuul配置
+zuul:
+  host:
+    max-per-route-connections: 500  	#每个路由的最大连接数。默认20，我们项目配置的是500
+    max-total-connections: 2000  		#最大连接数。默认值是200，我们项目配置的是2000
+    socket-timeout-millis: 6000			#socket读写超时时间
+    connect-timeout-millis: 6000		#连接超时时间
+  #ribbon配置以及隔离策略
+  ribbon-isolation-strategy: thread
+  ribbon:
+    eager-load:
+      enabled: true	                #饥饿开启，防止第一次调用时间长导致timeout
+  threadPool:
+    useSeparateThreadPools: true
+    threadPoolKeyPrefix: zuul
+  #ignored-patterns: /**/hello/**	  #不进行路由的路径
+  ignored-services: '*'               #因为zuul有默认的隐射机制，如果没有以下的配置，那么访问http://ip:port/c/也可以访问到你的c服务，如果你不想向外界暴露除你配置的隐射之外的服务，可以加上zuul.ignored-services:*
+  #prefix: /cloud			          #请求前缀（全局）
+  retryable: false  	              #关闭重试(全局)
+  ignored-headers: Access-Control-Allow-Credentials,Access-Control-Allow-Origin,Access-Control-Allow-Methods  #过滤掉跨域头
+  add-host-header: true	#是否增加请求头
+  #路由配置
+  routes:
+    link-nacos:
+      path: /app/link-nacos/**					    #请求拦截前缀
+      service-id: link-nacos-server		            #在nacos上注册的spring.application.name
+      #url: www.baidu.com							#可以直接配置转发的路径
+      strip-prefix: true							#就是是否要去掉path中配置的前缀
+      sensitive-headers: '*'                        #默认情况下，敏感的头信息无法经过API网关进行传递，可这样子配置传递
+      custom-sensitive-headers: true	            #自定义配置敏感头
+      retryable: false							    #关闭重试(局部)
+
+#ribbon配置
+#提前预热，避免第一次请求失败
+ribbon:
+  eager-load:
+    enabled: true
+    clients:                                    #有哪些需要提前预热的服务
+      - link-nacos-server
+  ReadTimeout: 6000	                            #读超时时间
+  ConnectTimeout: 6000	                        #连接超时时间
+  MaxAutoRetries: 0			                    #每台服务器最多重试次数，但是首次调用不包括在内
+  MaxAutoRetriesNextServer: 1	                #最多重试多少台服务器
+
+#暴露路由
 management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: '*'
+
+##timeout config
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000
 
