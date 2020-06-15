@@ -1,3 +1,8 @@
 server:
   port: 50001
 
+#网关动态路由
+gateway:
+  dynamicRoute:
+    enabled: true
+    dataType: nacos
