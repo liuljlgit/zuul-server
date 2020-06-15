@@ -1,9 +1,10 @@
-package com.cloud.personal.zuulserver.route;
+package com.cloud.personal.zuulserver.route.nacos;
 
 import com.alibaba.cloud.nacos.NacosConfigProperties;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
+import com.cloud.personal.zuulserver.route.AbstractDynRouteLocator;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -20,8 +21,8 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
- * @author zrhong
- * @date 2020/5/8 09:48
+ * @author liulijun
+ * @date 2020/6/15 09:48
  * @version 1.0
  * @description Nacos动态路由实现类
  */
@@ -37,7 +38,7 @@ public class NacosDynRouteLocator extends AbstractDynRouteLocator {
   private NacosDynRouteLocator locator;
 
   @Setter
-  private List<ZuulRouteEntity> zuulRouteEntities;
+  private List<NacosZuulRouteEntity> zuulRouteEntities;
 
   public NacosDynRouteLocator(
       NacosConfigProperties nacosConfigProperties,
@@ -84,7 +85,7 @@ public class NacosDynRouteLocator extends AbstractDynRouteLocator {
     if (zuulRouteEntities == null) {
       zuulRouteEntities = getNacosConfig();
     }
-    for (ZuulRouteEntity result : zuulRouteEntities) {
+    for (NacosZuulRouteEntity result : zuulRouteEntities) {
       if (StringUtils.isBlank(result.getPath()) || !result.isEnabled()) {
         continue;
       }
@@ -96,7 +97,7 @@ public class NacosDynRouteLocator extends AbstractDynRouteLocator {
   }
 
   /** 查询zuul的路由配置 */
-  private List<ZuulRouteEntity> getNacosConfig() {
+  private List<NacosZuulRouteEntity> getNacosConfig() {
     try {
       String content =
           nacosConfigProperties
@@ -109,9 +110,9 @@ public class NacosDynRouteLocator extends AbstractDynRouteLocator {
     return new ArrayList<>(0);
   }
 
-  public List<ZuulRouteEntity> getListByStr(String content) {
+  public List<NacosZuulRouteEntity> getListByStr(String content) {
     if (StringUtils.isNotEmpty(content)) {
-      return JSONObject.parseArray(content, ZuulRouteEntity.class);
+      return JSONObject.parseArray(content, NacosZuulRouteEntity.class);
     }
     return new ArrayList<>(0);
   }

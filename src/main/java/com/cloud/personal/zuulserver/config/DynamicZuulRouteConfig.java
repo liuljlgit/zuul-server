@@ -1,7 +1,8 @@
 package com.cloud.personal.zuulserver.config;
 
 import com.alibaba.cloud.nacos.NacosConfigProperties;
-import com.cloud.personal.zuulserver.route.NacosDynRouteLocator;
+import com.cloud.personal.zuulserver.route.db.DbDynRouteLocator;
+import com.cloud.personal.zuulserver.route.nacos.NacosDynRouteLocator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletPath;
@@ -9,6 +10,7 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * @author liulijun
@@ -42,8 +44,24 @@ public class DynamicZuulRouteConfig {
       return new NacosDynRouteLocator(
           nacosConfigProperties, publisher, dispatcherServletPath.getPrefix(), zuulProperties);
     }
-
-    /** mysql实现方式 */
-
   }
+
+  /** mysql实现方式 */
+  @Configuration
+  @ConditionalOnProperty(
+          prefix = "gateway.dynamicRoute",
+          name = "dataType",
+          havingValue = "db",
+          matchIfMissing = true)
+  public class DbZuulRoute {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Bean
+    public DbDynRouteLocator dbDynRouteLocator() {
+      return new DbDynRouteLocator(jdbcTemplate, dispatcherServletPath.getPrefix(), zuulProperties);
+    }
+  }
+
 }

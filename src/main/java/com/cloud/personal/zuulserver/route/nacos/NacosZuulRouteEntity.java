@@ -1,4 +1,4 @@
-package com.cloud.personal.zuulserver.route;
+package com.cloud.personal.zuulserver.route.nacos;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +14,7 @@ import java.util.Set;
  */
 @Setter
 @Getter
-public class ZuulRouteEntity {
+public class NacosZuulRouteEntity {
   /** The ID of the route (the same as its map key by default). */
   private String id;
   /** The path (pattern) for the route, e.g. /foo/**. */
